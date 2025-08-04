@@ -35,11 +35,15 @@ yay -S crush-bin
 
 # Nix
 nix run github:numtide/nix-ai-tools#crush
+
+# Scoop
+scoop bucket add charm https://github.com/charmbracelet/scoop-bucket.git
+scoop install crush
 ```
 
 <details>
 <summary><strong>Nix (NUR)</strong></summary>
-    
+
 Crush is available via [NUR](https://github.com/nix-community/NUR) in `nur.repos.charmbracelet.crush`.
 
 You can also try out Crush via `nix-shell`:
