@@ -152,3 +152,5 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/mark3labs/mcp-go v0.36.0 => github.com/caarlos0/mcp-go v0.36.1-0.20250804133204-08f1637999e6

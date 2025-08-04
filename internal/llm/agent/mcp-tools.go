@@ -180,21 +180,23 @@ func doGetMCPTools(ctx context.Context, permissions permission.Service, cfg *con
 func createMcpClient(m config.MCPConfig) (*client.Client, error) {
 	switch m.Type {
 	case config.MCPStdio:
-		return client.NewStdioMCPClient(
+		return client.NewStdioMCPClientWithOptions(
 			m.Command,
 			m.ResolvedEnv(),
-			m.Args...,
+			m.Args,
+			transport.WithCommandLogger(mcpLogger{}),
 		)
 	case config.MCPHttp:
 		return client.NewStreamableHttpClient(
 			m.URL,
 			transport.WithHTTPHeaders(m.ResolvedHeaders()),
-			transport.WithLogger(mcpHTTPLogger{}),
+			transport.WithHTTPLogger(mcpLogger{}),
 		)
 	case config.MCPSse:
 		return client.NewSSEMCPClient(
 			m.URL,
 			client.WithHeaders(m.ResolvedHeaders()),
+			transport.WithSSELogger(mcpLogger{}),
 		)
 	default:
 		return nil, fmt.Errorf("unsupported mcp type: %s", m.Type)
@@ -202,7 +204,7 @@ func createMcpClient(m config.MCPConfig) (*client.Client, error) {
 }
 
 // for MCP's HTTP client.
-type mcpHTTPLogger struct{}
+type mcpLogger struct{}
 
-func (l mcpHTTPLogger) Errorf(format string, v ...any) { slog.Error(fmt.Sprintf(format, v...)) }
-func (l mcpHTTPLogger) Infof(format string, v ...any)  { slog.Info(fmt.Sprintf(format, v...)) }
+func (l mcpLogger) Errorf(format string, v ...any) { slog.Error(fmt.Sprintf(format, v...)) }
+func (l mcpLogger) Infof(format string, v ...any)  { slog.Info(fmt.Sprintf(format, v...)) }
