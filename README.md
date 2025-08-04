@@ -140,7 +140,7 @@ or globally, with the following priority:
 
 1. `./.crush.json`
 2. `./crush.json`
-3. `$HOME/.config/crush/crush.json`
+3. `$HOME/.config/crush/crush.json` (windows `$USERPROFILE\AppData\Local\crush\crush.json`)
 
 Configuration itself is stored as a JSON object:
 
@@ -149,6 +149,15 @@ Configuration itself is stored as a JSON object:
    "this-setting": { }
    "that-setting": { }
 }
+```
+
+Configurations configured using the UI that persist (e.x setting an API key or setting the current model) are stored in
+
+```bash
+# linux & mac
+$HOME/.local/shared/crush/crush.json
+# windows
+$USERPROFILE\AppData\Local\crush\crush.json
 ```
 
 ### LSPs
@@ -280,6 +289,49 @@ API. Don't forget to set `DEEPSEEK_API_KEY` in your environment.
 }
 ```
 
+#### Running local models
+
+Here's an example of configuring `ollama` and `LMStudio`
+
+```json
+{
+  "$schema": "https://charm.land/crush.json",
+  "lsp": {
+    "Go": {
+      "command": "gopls"
+    }
+  },
+  "providers": {
+    "ollama": {
+      "name": "Ollama",
+      "base_url": "http://localhost:11434/v1/",
+      "type": "openai",
+      "models": [
+        {
+          "name": "Qwen 3 30B",
+          "id": "qwen3:30b",
+          "context_window": 256000,
+          "default_max_tokens": 20000
+        }
+      ]
+    },
+    "lmstudio": {
+      "name": "LM Studio",
+      "base_url": "http://localhost:1234/v1/",
+      "type": "openai",
+      "models": [
+        {
+          "name": "Qwen 3 30B",
+          "id": "qwen/qwen3-30b-a3b-2507",
+          "context_window": 256000,
+          "default_max_tokens": 20000
+        }
+      ]
+    }
+  }
+}
+```
+
 #### Anthropic-Compatible APIs
 
 Custom Anthropic-compatible providers follow this format:
@@ -313,6 +365,135 @@ Custom Anthropic-compatible providers follow this format:
   }
 }
 ```
+
+## Configuring AWS Bedrock
+
+Crush currently only supports running anthropic models through bedrock, and caching is disabled.
+
+For the bedrock provider to be included in the list of available providers you need to have AWS configured (aws credentials).
+
+In addition crush needs `AWS_REGION` or `AWS_DEFAULT_REGION` to be set.
+
+To use a specific AWS profile use `AWS_PROFILE=myprofile crush`
+
+## Configuring VertexAI
+
+For vertexai to show in the list of availabnle providers you need to set `VERTEXAI_PROJECT` and `VERTEXAI_LOCATION`.
+
+In addition if you have not done this before you need to run
+
+```bash
+gcloud auth application-default login
+```
+
+Adding models to the configuration
+
+```
+{
+  "$schema": "https://charm.land/crush.json",
+  "lsp": {
+    "Go": {
+      "command": "gopls"
+    }
+  },
+  "providers": {
+    "vertexai": {
+      "models": [
+        {
+          "id": "claude-sonnet-4@20250514",
+          "name": "VertexAI: Sonnet 4",
+          "cost_per_1m_in": 3,
+          "cost_per_1m_out": 15,
+          "cost_per_1m_in_cached": 3.75,
+          "cost_per_1m_out_cached": 0.3,
+          "context_window": 200000,
+          "default_max_tokens": 50000,
+          "can_reason": true,
+          "supports_attachments": true
+        }
+      ]
+    }
+  }
+}
+```
+
+Currently only model google models and anthropic models are supported.
+
+## Custom Commands
+
+Crush supports custom commands that can be created by users to quickly send predefined prompts to the AI assistant.
+
+### Creating Custom Commands
+
+Custom commands are predefined prompts stored as Markdown files in one of three locations:
+
+1. **User Commands** (prefixed with `user:`):
+
+   ```
+   $XDG_CONFIG_HOME/crush/commands/
+   ```
+
+   (typically `~/.config/crush/commands/` on Linux/macOS)
+   (`$USERPROFILE\AppData\Local\crush\commands\` on windows )
+
+   ```
+
+   ```
+
+2. **Project Commands** (prefixed with `project:`):
+
+   ```
+   <PROJECT DIR>/.crush/commands/
+   ```
+
+Each `.md` file in these directories becomes a custom command. The file name (without extension) becomes the command ID.
+
+For example, creating a file at `~/.config/crush/commands/prime-context.md` with content:
+
+```markdown
+RUN git ls-files
+READ README.md
+```
+
+This creates a command called `user:prime-context`.
+
+### Command Arguments
+
+Crush supports named arguments in custom commands using placeholders in the format `$NAME` (where NAME consists of uppercase letters, numbers, and underscores, and must start with a letter).
+
+For example:
+
+```markdown
+# Fetch Context for Issue $ISSUE_NUMBER
+
+RUN gh issue view $ISSUE_NUMBER --json title,body,comments
+RUN git grep --author="$AUTHOR_NAME" -n .
+RUN grep -R "$SEARCH_PATTERN" $DIRECTORY
+```
+
+When you run a command with arguments, Crush will prompt you to enter values for each unique placeholder. Named arguments provide several benefits:
+
+- Clear identification of what each argument represents
+- Ability to use the same argument multiple times
+- Better organization for commands with multiple inputs
+
+### Organizing Commands
+
+You can organize commands in subdirectories:
+
+```
+~/.config/crush/commands/git/commit.md
+```
+
+This creates a command with ID `user:git:commit`.
+
+### Using Custom Commands
+
+1. Press `ctrl+p` to open the command dialog and than `tab` to switch to user commands
+2. Select your custom command (prefixed with either `user:` or `project:`)
+3. Press Enter to execute the command
+
+The content of the command file will be sent as a message to the AI assistant.
 
 ## Logging
 
