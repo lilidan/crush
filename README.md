@@ -151,7 +151,7 @@ Configuration itself is stored as a JSON object:
 }
 ```
 
-Configurations configured using the UI that persist (e.x setting an API key or setting the current model) are stored in
+Configurations configured using the UI that persist (e.x setting an API key or setting the current model) are stored in:
 
 ```bash
 # linux & mac
@@ -291,7 +291,7 @@ API. Don't forget to set `DEEPSEEK_API_KEY` in your environment.
 
 #### Running local models
 
-Here's an example of configuring `ollama` and `LMStudio`
+Here's an example of configuring `ollama` and `LMStudio`:
 
 ```json
 {
@@ -374,19 +374,19 @@ For the bedrock provider to be included in the list of available providers you n
 
 In addition crush needs `AWS_REGION` or `AWS_DEFAULT_REGION` to be set.
 
-To use a specific AWS profile use `AWS_PROFILE=myprofile crush`
+To use a specific AWS profile use `AWS_PROFILE=myprofile crush`.
 
 ## Configuring VertexAI
 
 For vertexai to show in the list of availabnle providers you need to set `VERTEXAI_PROJECT` and `VERTEXAI_LOCATION`.
 
-In addition if you have not done this before you need to run
+In addition if you have not done this before you need to run:
 
 ```bash
 gcloud auth application-default login
 ```
 
-Adding models to the configuration
+Adding models to the configuration:
 
 ```
 {
