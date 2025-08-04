@@ -388,7 +388,7 @@ gcloud auth application-default login
 
 Adding models to the configuration:
 
-```
+```json
 {
   "$schema": "https://charm.land/crush.json",
   "lsp": {
@@ -429,20 +429,16 @@ Custom commands are predefined prompts stored as Markdown files in one of three 
 
 1. **User Commands** (prefixed with `user:`):
 
-   ```
+   ```bash
    $XDG_CONFIG_HOME/crush/commands/
    ```
 
    (typically `~/.config/crush/commands/` on Linux/macOS)
    (`$USERPROFILE\AppData\Local\crush\commands\` on windows )
 
-   ```
-
-   ```
-
 2. **Project Commands** (prefixed with `project:`):
 
-   ```
+   ```bash
    <PROJECT DIR>/.crush/commands/
    ```
 
@@ -481,7 +477,7 @@ When you run a command with arguments, Crush will prompt you to enter values for
 
 You can organize commands in subdirectories:
 
-```
+```bash
 ~/.config/crush/commands/git/commit.md
 ```
 
