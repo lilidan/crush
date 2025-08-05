@@ -1,0 +1,23 @@
+{
+  "name": "browser-crush",
+  "version": "1.0.0",
+  "description": "Browser-based AI coding assistant powered by Crush",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx vite",
+    "build": "npx vite build",
+    "preview": "npx vite preview",
+    "install-deps": "npm install"
+  },
+  "keywords": ["ai", "coding", "assistant", "browser", "crush"],
+  "author": "Crush Team",
+  "license": "MIT",
+  "dependencies": {
+    "openai": "^4.67.3",
+    "@anthropic-ai/sdk": "^0.27.3"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10"
+  },
+  "type": "module"
+}

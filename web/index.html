@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Crush - AI Coding Agent</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <i class="fas fa-robot"></i>
+                <h1>Browser Crush</h1>
+            </div>
+            <div class="header-right">
+                <select id="llmProviderSelect" class="provider-select">
+                    <option value="openai">OpenAI GPT-4</option>
+                    <option value="anthropic">Claude</option>
+                    <option value="ollama">Ollama (Local)</option>
+                </select>
+                <button id="settings-button" class="btn btn-secondary">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <!-- Sidebar -->
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h3>Project Explorer</h3>
+                    <div class="sidebar-actions">
+                        <button id="repo-button" class="btn btn-primary btn-sm">
+                            <i class="fas fa-download"></i> Load Repo
+                        </button>
+                        <button id="newFileBtn" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="file-tree" id="file-tree">
+                    <div class="file-tree-content" id="file-tree-content">
+                        <div class="empty-state">
+                            <i class="fas fa-folder-open"></i>
+                            <p>No repository loaded</p>
+                            <p>Load a GitHub repository to start coding</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Editor Area -->
+                <div class="editor-container" id="editor-container">
+                    <div class="editor-tabs" id="editor-tabs">
+                        <!-- Tabs will be added dynamically -->
+                    </div>
+                    <div class="editor-wrapper">
+                        <div id="monaco-editor" class="editor-instance">
+                            <!-- Monaco Editor will be initialized here -->
+                        </div>
+                        <div class="welcome-screen" id="welcome-screen">
+                            <div class="welcome-content">
+                                <i class="fas fa-code"></i>
+                                <h2>Welcome to Browser Crush</h2>
+                                <p>An AI-powered coding assistant running entirely in your browser</p>
+                                <div class="quick-actions">
+                                    <button class="btn btn-primary" onclick="loadDemoProject()">
+                                        <i class="fas fa-play"></i> Try Demo Project
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="showRepoModal()">
+                                        <i class="fas fa-github"></i> Load from GitHub
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Panel -->
+                <div class="chat-panel" id="chat-container">
+                    <div class="chat-header">
+                        <h3><i class="fas fa-comments"></i> AI Assistant</h3>
+                        <div class="chat-controls">
+                            <button id="clear-button" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button id="undo-button" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button id="redo-button" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Messages will be added dynamically -->
+                    </div>
+                    <div class="chat-input-container">
+                        <div class="chat-input-wrapper">
+                            <input 
+                                type="text" 
+                                id="chat-input" 
+                                class="chat-input" 
+                                placeholder="Ask me to help with your code..."
+                            />
+                            <button id="chat-send" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="input-status" id="status-bar">
+                            <span id="status-text">Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="modal-close" id="settings-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="llm-provider">LLM Provider:</label>
+                    <select id="llm-provider" class="form-control">
+                        <option value="openai">OpenAI</option>
+                        <option value="anthropic">Anthropic</option>
+                        <option value="ollama">Ollama (Local)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="llm-model">Model:</label>
+                    <select id="llm-model" class="form-control">
+                        <option value="gpt-4">GPT-4</option>
+                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                        <option value="claude-3-haiku">Claude 3 Haiku</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="openai-api-key">OpenAI API Key:</label>
+                    <input type="password" id="openai-api-key" class="form-control" placeholder="sk-...">
+                </div>
+                <div class="form-group">
+                    <label for="anthropic-api-key">Anthropic API Key:</label>
+                    <input type="password" id="anthropic-api-key" class="form-control" placeholder="sk-ant-...">
+                </div>
+                <div class="form-group">
+                    <label for="ollama-url">Ollama URL:</label>
+                    <input type="text" id="ollama-url" class="form-control" placeholder="http://localhost:11434" value="http://localhost:11434">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="settings-close">Cancel</button>
+                <button class="btn btn-primary" id="settings-save">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Repository Modal -->
+    <div class="modal" id="repo-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Load Repository</h3>
+                <button class="modal-close" id="repo-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="repo-url">GitHub Repository URL:</label>
+                    <input type="text" id="repo-url" class="form-control" placeholder="https://github.com/username/repository">
+                </div>
+                <div class="form-group">
+                    <label for="repo-branch">Branch:</label>
+                    <input type="text" id="repo-branch" class="form-control" placeholder="main" value="main">
+                </div>
+                <div class="loading-state" id="loading-state" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Loading repository...</span>
+                </div>
+                <div class="quick-actions">
+                    <button class="btn btn-secondary" onclick="loadDemoProject()">
+                        <i class="fas fa-play"></i> Load Demo Project
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="repo-close">Cancel</button>
+                <button class="btn btn-primary" id="repo-load">Load</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+    <script>
+        // Configure Monaco Editor
+        require.config({ 
+            paths: { 
+                vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' 
+            } 
+        });
+    </script>
+    <script src="js/core/types.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/storage.js"></script>
+    <script src="js/core/file-system.js"></script>
+    <script src="js/core/prompts.js"></script>
+    <script src="js/core/context-manager.js"></script>
+    <script src="js/llm/llm-client.js"></script>
+    <script src="js/llm/sdk-loader.js"></script>
+    <script src="js/llm/llm-client-sdk.js"></script>
+    <script src="js/tools/base-tool.js"></script>
+    <script src="js/tools/file-tools.js"></script>
+    <script src="js/tools/search-tools.js"></script>
+    <script src="js/core/change-tracker.js"></script>
+    <script src="js/core/coding-agent.js"></script>
+    <script src="js/ui/coding-agent-ui.js"></script>
+    <script src="js/utils/cors-helper.js"></script>
+    <script src="js/demo/demo-data.js"></script>
+    <script src="js/app.js"></script>
+    
+    <!-- Helper functions for the demo -->
+    <script>
+        // Global helper functions for UI interactions
+        function showRepoModal() {
+            document.getElementById('repo-modal').style.display = 'flex';
+        }
+        
+        function loadDemoProject() {
+            if (window.crushApp && window.crushApp.agent) {
+                DemoData.loadDemoProject(window.crushApp.agent.fileSystem)
+                    .then(() => {
+                        console.log('Demo project loaded successfully!');
+                        // Close any open modals
+                        document.querySelectorAll('.modal').forEach(modal => {
+                            modal.style.display = 'none';
+                        });
+                        // Hide welcome screen
+                        const welcomeScreen = document.getElementById('welcome-screen');
+                        if (welcomeScreen) {
+                            welcomeScreen.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Failed to load demo project:', error);
+                        alert('Failed to load demo project: ' + error.message);
+                    });
+            } else {
+                console.warn('Crush app not ready yet');
+            }
+        }
+        
+        // Modal close handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close modal when clicking outside
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Close modal buttons
+            document.querySelectorAll('.modal-close').forEach(button => {
+                button.addEventListener('click', function() {
+                    button.closest('.modal').style.display = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
