@@ -4,9 +4,9 @@ import (
 	"github.com/charmbracelet/x/exp/charmtone"
 )
 
-func NewCrushTheme() *Theme {
+func NewCharmtoneTheme() *Theme {
 	return &Theme{
-		Name:   "crush",
+		Name:   "charmtone",
 		IsDark: true,
 
 		Primary:   charmtone.Charple,
