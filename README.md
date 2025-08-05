@@ -154,7 +154,7 @@ Configuration itself is stored as a JSON object:
 As an additional note, Crush also stores ephemeral data, such as application state, in one additional location:
 
 ```bash
-# Unix:
+# Unix
 $HOME/.local/shared/crush/crush.json
 
 # Windows
