@@ -673,7 +673,9 @@ class CodingAgentUI {
         const openaiKey = document.getElementById('openai-api-key')?.value;
         const anthropicKey = document.getElementById('anthropic-api-key')?.value;
         const ollamaUrl = document.getElementById('ollama-url')?.value || 'http://localhost:11434';
-        
+        console.log('openaiKey', openaiKey);
+        console.log('anthropicKey', anthropicKey);
+
         if (openaiKey && openaiKey !== '••••••••') {
             this.agent.storage.setApiKey('openai', openaiKey, true);
         }

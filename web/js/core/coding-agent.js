@@ -541,6 +541,9 @@ class CodingAgent {
         }
 
         const config = this.storage.getConfig();
+        console.log('config', config);
+        console.log('apiKey', apiKey);
+        console.log('provider', provider);
         
         try {
             this.llmClient = this.createLLMClient(provider, apiKey, {
