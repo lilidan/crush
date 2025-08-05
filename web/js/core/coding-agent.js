@@ -113,37 +113,18 @@ class CodingAgent {
     }
 
     /**
-     * Check if SDK loader is available and ready
+     * Create LLM client directly using npm packages
      */
-    isSDKLoaderReady() {
-        return window.sdkLoader && 
-               typeof window.sdkLoader.createLLMClient === 'function' &&
-               window.LLMClientSDK;
-    }
-
-    /**
-     * Initialize SDK loader if not ready
-     */
-    async ensureSDKLoader() {
-        if (!this.isSDKLoaderReady()) {
-            try {
-                // Try to initialize SDK loader manually
-                if (window.SDKLoader && !window.sdkLoader) {
-                    window.sdkLoader = new window.SDKLoader();
-                }
-                
-                // Wait a bit for scripts to load
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                if (!this.isSDKLoaderReady()) {
-                    throw new Error('SDK Loader components not available');
-                }
-            } catch (error) {
-                Utils.warn('SDK Loader initialization failed:', error);
-                return false;
-            }
+    createLLMClient(provider, apiKey, config = {}) {
+        if (!window.LLMClientSDK) {
+            throw new Error('LLMClientSDK not available');
         }
-        return true;
+        
+        return new window.LLMClientSDK({
+            provider: provider,
+            apiKey: apiKey,
+            ...config
+        });
     }
 
     /**
@@ -160,18 +141,11 @@ class CodingAgent {
         
         if (selectedProvider && apiKey) {
             try {
-                // Ensure SDK loader is ready
-                const sdkReady = await this.ensureSDKLoader();
-                
-                if (sdkReady) {
-                    this.llmClient = await window.sdkLoader.createLLMClient(selectedProvider, apiKey, {
-                        ...config.llm,
-                        model: config.llm?.model
-                    });
-                    Utils.log(`LLM configured with provider: ${selectedProvider} (SDK)`);
-                } else {
-                    throw new Error('SDK Loader not available');
-                }
+                this.llmClient = this.createLLMClient(selectedProvider, apiKey, {
+                    ...config.llm,
+                    model: config.llm?.model
+                });
+                Utils.log(`LLM configured with provider: ${selectedProvider} (SDK)`);
             } catch (error) {
                 Utils.error('Failed to initialize SDK client, falling back to basic client:', error);
                 // Fallback to original client
@@ -529,15 +503,8 @@ class CodingAgent {
             
             if (provider && apiKey) {
                 try {
-                    // Ensure SDK loader is ready
-                    const sdkReady = await this.ensureSDKLoader();
-                    
-                    if (sdkReady) {
-                        this.llmClient = await window.sdkLoader.createLLMClient(provider, apiKey, config.llm);
-                        Utils.log(`LLM reconfigured with provider: ${provider} (SDK)`);
-                    } else {
-                        throw new Error('SDK Loader not available');
-                    }
+                    this.llmClient = this.createLLMClient(provider, apiKey, config.llm);
+                    Utils.log(`LLM reconfigured with provider: ${provider} (SDK)`);
                 } catch (error) {
                     Utils.error('Failed to update SDK client, using updateConfig fallback:', error);
                     // Fallback to updating existing client
@@ -576,18 +543,11 @@ class CodingAgent {
         const config = this.storage.getConfig();
         
         try {
-            // Ensure SDK loader is ready
-            const sdkReady = await this.ensureSDKLoader();
-            
-            if (sdkReady) {
-                this.llmClient = await window.sdkLoader.createLLMClient(provider, apiKey, {
-                    ...config.llm,
-                    provider: provider
-                });
-                Utils.log(`Switched to provider: ${provider} (SDK)`);
-            } else {
-                throw new Error('SDK Loader not available');
-            }
+            this.llmClient = this.createLLMClient(provider, apiKey, {
+                ...config.llm,
+                provider: provider
+            });
+            Utils.log(`Switched to provider: ${provider} (SDK)`);
         } catch (error) {
             Utils.error('Failed to switch to SDK client, using fallback:', error);
             // Fallback to original client

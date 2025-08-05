@@ -3,24 +3,9 @@
  * Uses official OpenAI and Anthropic SDKs instead of direct API calls
  */
 
-// Import SDKs (for module builds)
-let OpenAI, Anthropic;
-
-// Check if we're in a module environment and import SDKs
-if (typeof window !== 'undefined' && window.OpenAI) {
-    OpenAI = window.OpenAI;
-    Anthropic = window.Anthropic;
-} else if (typeof module !== 'undefined' && module.exports) {
-    // Node.js environment - import will be handled by bundler
-    try {
-        const openaiModule = await import('openai');
-        const anthropicModule = await import('@anthropic-ai/sdk');
-        OpenAI = openaiModule.default || openaiModule.OpenAI;
-        Anthropic = anthropicModule.default || anthropicModule.Anthropic;
-    } catch (error) {
-        console.warn('SDKs not available, falling back to fetch-based implementation');
-    }
-}
+// Import SDKs directly from npm packages
+import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 
 class LLMClientSDK {
     constructor(config = {}) {
@@ -689,13 +674,13 @@ class LLMClientFactorySDK {
     }
 }
 
-// Export to global scope
+// Export to global scope for backward compatibility
 if (typeof window !== 'undefined') {
     window.LLMClientSDK = LLMClientSDK;
     window.LLMClientFactorySDK = LLMClientFactorySDK;
+    console.log('LLMClientSDK exported to window:', !!window.LLMClientSDK);
 }
 
-// Export for module environments
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { LLMClientSDK, LLMClientFactorySDK };
-}
+// ES Module exports
+export { LLMClientSDK, LLMClientFactorySDK };
+export default LLMClientSDK;

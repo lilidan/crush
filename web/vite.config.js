@@ -5,7 +5,6 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     rollupOptions: {
-      external: [],
       output: {
         manualChunks: {
           'openai': ['openai'],
@@ -15,11 +14,7 @@ export default defineConfig({
     }
   },
   define: {
-    // Define global variables if needed
     global: 'globalThis',
-  },
-  optimizeDeps: {
-    include: ['openai', '@anthropic-ai/sdk']
   },
   server: {
     port: 3000,

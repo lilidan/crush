@@ -33,9 +33,7 @@ class CrushApp {
                 await this.initializeMonaco();
             }
             
-            // Preload LLM SDKs
-            this.updateLoading('Loading AI SDKs...');
-            await this.preloadSDKs();
+            // SDKs are now bundled with npm packages
             
             // Initialize the coding agent
             this.updateLoading('Starting AI Assistant...');
@@ -360,34 +358,6 @@ class CrushApp {
         document.body.appendChild(errorModal);
     }
 
-    /**
-     * Preload LLM SDKs
-     */
-    async preloadSDKs() {
-        try {
-            // Check if SDK loader is available
-            if (!window.sdkLoader && window.SDKLoader) {
-                console.log('Initializing SDK Loader...');
-                window.sdkLoader = new window.SDKLoader();
-            }
-            
-            if (window.sdkLoader) {
-                console.log('Preloading SDKs...');
-                const availableSDKs = await window.sdkLoader.preloadSDKs(['openai', 'anthropic']);
-                console.log('Available SDKs:', availableSDKs);
-                
-                // Verify SDK Client is available
-                if (!window.LLMClientSDK) {
-                    console.warn('LLMClientSDK not available - check script loading order');
-                }
-            } else {
-                console.warn('SDK Loader not available - will use fallback clients');
-            }
-        } catch (error) {
-            console.warn('Failed to preload SDKs:', error);
-            // Continue without SDKs - fallback will handle this
-        }
-    }
 
     /**
      * Show welcome message
