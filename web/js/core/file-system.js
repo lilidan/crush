@@ -467,6 +467,34 @@ class VirtualFileSystem {
         this.gitIgnorePatterns = [];
         this.crushIgnorePatterns = [];
         this.currentRepo = null;
+        this.listeners = new Set();
+    }
+
+    /**
+     * Add event listener
+     */
+    addListener(callback) {
+        this.listeners.add(callback);
+    }
+
+    /**
+     * Remove event listener
+     */
+    removeListener(callback) {
+        this.listeners.delete(callback);
+    }
+
+    /**
+     * Notify all listeners of an event
+     */
+    notifyListeners(event, data) {
+        this.listeners.forEach(callback => {
+            try {
+                callback(event, data);
+            } catch (error) {
+                console.error('FileSystem listener error:', error);
+            }
+        });
     }
 
     /**
@@ -650,6 +678,14 @@ class VirtualFileSystem {
             await this.index.indexFile(normalizedPath, content);
         }
         
+        // Notify listeners
+        this.notifyListeners('file_added', { 
+            path: normalizedPath, 
+            type: type, 
+            size: fileSize,
+            file: fileEntry
+        });
+        
         return fileEntry;
     }
 
@@ -679,6 +715,7 @@ class VirtualFileSystem {
         const existingFile = this.files.get(normalizedPath);
         
         if (existingFile) {
+            const oldContent = existingFile.content;
             existingFile.content = newContent;
             existingFile.size = newContent.length;
             existingFile.lastModified = new Date();
@@ -688,6 +725,15 @@ class VirtualFileSystem {
             
             // Cache content
             Storage.storeFileContent(normalizedPath, newContent);
+            
+            // Notify listeners
+            this.notifyListeners('file_updated', { 
+                path: normalizedPath, 
+                oldContent: oldContent,
+                newContent: newContent,
+                size: newContent.length,
+                file: existingFile
+            });
             
             return existingFile;
         } else {
@@ -701,7 +747,23 @@ class VirtualFileSystem {
      */
     deleteFile(filePath) {
         const normalizedPath = Utils.normalizePath(filePath);
-        return this.files.delete(normalizedPath);
+        const existingFile = this.files.get(normalizedPath);
+        
+        if (existingFile) {
+            const success = this.files.delete(normalizedPath);
+            
+            if (success) {
+                // Notify listeners
+                this.notifyListeners('file_deleted', { 
+                    path: normalizedPath, 
+                    file: existingFile
+                });
+            }
+            
+            return success;
+        }
+        
+        return false;
     }
 
     /**
