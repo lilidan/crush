@@ -128,8 +128,11 @@ class StorageManager {
         // First check session storage
         const sessionKey = sessionStorage.getItem(`${this.storageKey}_${provider}_key`);
         if (sessionKey) {
-            return this.decrypt(sessionKey);
+            const decryptedKey = this.decrypt(sessionKey);
+            console.log('decryptedKey', decryptedKey);
+            return decryptedKey;
         }
+        
 
         // Then check persistent storage
         const config = this.getConfig();

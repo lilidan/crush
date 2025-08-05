@@ -24,7 +24,7 @@ class LLMClientSDK {
             },
             anthropic: {
                 baseUrl: 'https://api.anthropic.com',
-                models: ['claude-3-5-sonnet-20241022', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307']
+                models: ['claude-3-5-sonnet-20241022', 'claude-sonnet-4-0', 'claude-3-haiku-20240307']
             },
             ollama: {
                 baseUrl: config.baseUrl || 'http://localhost:11434',
@@ -551,7 +551,7 @@ class LLMClientSDK {
     getAnthropicModels() {
         return [
             { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet' },
-            { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet' },
+            { id: 'claude-sonnet-4-0', name: 'Claude 3 Sonnet' },
             { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku' }
         ];
     }

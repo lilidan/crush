@@ -21,7 +21,7 @@ class LLMClient {
             anthropic: {
                 baseUrl: 'https://api.anthropic.com/v1',
                 corsProxy: 'https://cors-anywhere.herokuapp.com/',
-                models: ['claude-3-sonnet-20240229', 'claude-3-haiku-20240307']
+                models: ['claude-sonnet-4-0']
             },
             ollama: {
                 baseUrl: config.baseUrl || 'http://localhost:11434',
@@ -225,7 +225,7 @@ class LLMClient {
         }));
 
         const requestBody = {
-            model: this.model || 'claude-3-sonnet-20240229',
+            model: this.model || 'claude-sonnet-4-0',
             messages: request.messages.map(msg => ({
                 role: msg.role === 'assistant' ? 'assistant' : 'user',
                 content: msg.content
@@ -352,7 +352,7 @@ class LLMClient {
                 'anthropic-version': '2023-06-01'
             },
             body: JSON.stringify({
-                model: this.model || 'claude-3-sonnet-20240229',
+                model: this.model || 'claude-sonnet-4-0',
                 messages: messages.map(msg => ({
                     role: msg.role === 'assistant' ? 'assistant' : 'user',
                     content: msg.content
@@ -607,7 +607,7 @@ class LLMClient {
     getAnthropicModels() {
         return [
             { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus' },
-            { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet' },
+            { id: 'claude-sonnet-4-0', name: 'claude-sonnet-4-0' },
             { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku' }
         ];
     }

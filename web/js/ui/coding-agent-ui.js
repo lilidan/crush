@@ -689,7 +689,7 @@ class CodingAgentUI {
                 model: model,
                 providers: {
                     openai: { model: 'gpt-4' },
-                    anthropic: { model: 'claude-3-sonnet-20240229' },
+                    anthropic: { model: 'claude-sonnet-4-0' },
                     ollama: { baseUrl: ollamaUrl }
                 }
             },
