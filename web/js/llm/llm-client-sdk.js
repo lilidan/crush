@@ -23,7 +23,7 @@ class LLMClientSDK {
                 models: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo', 'gpt-4o', 'gpt-4o-mini']
             },
             anthropic: {
-                baseUrl: 'https://api.anthropic.com/v1',
+                baseUrl: 'https://api.anthropic.com',
                 models: ['claude-3-5-sonnet-20241022', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307']
             },
             ollama: {
