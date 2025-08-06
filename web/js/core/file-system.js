@@ -13,7 +13,7 @@ window.Buffer = Buffer;
 
 class LightningFileSystem {
     constructor(name = 'crush-workspace') {
-        this.fs = new FS(name);
+        this.fs = new FS(name).promises;
         this.workdir = '/';
         this.currentRepo = null;
         this.listeners = new Set();
