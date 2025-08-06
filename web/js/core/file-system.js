@@ -149,8 +149,7 @@ class LightningFileSystem {
      * Add/Create file
      */
     async addFile(path, content, type = 'file') {
-        const normalizedPath = this.normalizePath(path);
-        
+        const normalizedPath = "/root/" + this.normalizePath(path);
         try {
             if (type === 'directory') {
                 await this.fs.mkdir(normalizedPath, { recursive: true });
@@ -158,9 +157,12 @@ class LightningFileSystem {
                 // Ensure parent directory exists
                 const dir = this.dirname(normalizedPath);
                 if (dir && dir !== '.' && dir !== '/') {
-                    await this.fs.mkdir(dir, { recursive: true });
+                    try {
+                        await this.fs.mkdir(dir, { recursive: true });
+                    } catch (error) {
+                        console.error(`Failed to create directory: ${dir}`, error);
+                    }
                 }
-                
                 // Write file
                 await this.fs.writeFile(normalizedPath, content, 'utf8');
             }
@@ -355,7 +357,7 @@ class LightningFileSystem {
      */
     normalizePath(path) {
         if (!path) return '';
-        return path.replace(/\\/g, '/').replace(/^\/+/, '');
+        return path.replace(/\\/g, '/')
     }
 
     /**
