@@ -9,18 +9,25 @@
     "preview": "npx vite preview",
     "install-deps": "npm install"
   },
-  "keywords": ["ai", "coding", "assistant", "browser", "crush"],
+  "keywords": [
+    "ai",
+    "coding",
+    "assistant",
+    "browser",
+    "crush"
+  ],
   "author": "Crush Team",
   "license": "MIT",
   "dependencies": {
-    "openai": "^4.67.3",
     "@anthropic-ai/sdk": "^0.30.1",
     "@isomorphic-git/lightning-fs": "^4.6.0",
-    "isomorphic-git": "^1.25.10"
+    "buffer": "^6.0.3",
+    "isomorphic-git": "^1.25.10",
+    "openai": "^4.67.3"
   },
   "devDependencies": {
-    "vite": "^5.4.10",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "vite": "^5.4.10"
   },
   "type": "module"
 }

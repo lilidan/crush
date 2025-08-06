@@ -7,6 +7,9 @@
 import FS from '@isomorphic-git/lightning-fs';
 import git from 'isomorphic-git';
 import http from 'isomorphic-git/http/web';
+import { Buffer } from 'buffer'
+window.Buffer = Buffer;
+
 
 class LightningFileSystem {
     constructor(name = 'crush-workspace') {
