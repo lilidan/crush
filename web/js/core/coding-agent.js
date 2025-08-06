@@ -42,7 +42,7 @@ class CodingAgent {
             this.storage = window.CrushStorage || new StorageManager();
             
             // Initialize file system
-            this.fileSystem = new VirtualFileSystem();
+            this.fileSystem = new LightningFileSystem();
             
             // Initialize change tracker
             this.changeTracker = new ChangeTracker();
