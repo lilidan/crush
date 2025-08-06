@@ -18,7 +18,7 @@ class ContextManager {
         const intent = this.analyzeIntent(userPrompt);
         
         const context = new CodeContext();
-        context.projectStructure = this.getProjectOverview();
+        context.projectStructure = await this.getProjectOverview();
         context.relevantFiles = await this.findRelevantFiles(intent, options.maxFiles || 5);
         context.symbols = await this.findRelevantSymbols(intent);
         context.dependencies = await this.analyzeDependencies(context.relevantFiles);
@@ -386,7 +386,7 @@ class ContextManager {
     /**
      * Get project overview
      */
-    getProjectOverview() {
+    async getProjectOverview() {
         const repoInfo = this.fileSystem.getRepositoryInfo();
         const fileCount = this.fileSystem.getFileCount();
         const totalSize = this.fileSystem.getTotalSize();
@@ -395,16 +395,16 @@ class ContextManager {
             repository: repoInfo,
             fileCount,
             totalSize: Utils.formatFileSize(totalSize),
-            structure: this.getSimpleProjectStructure()
+            structure: await this.getSimpleProjectStructure()
         };
     }
 
     /**
      * Get simplified project structure
      */
-    getSimpleProjectStructure() {
+    async getSimpleProjectStructure() {
         const structure = {};
-        const files = this.fileSystem.listFiles();
+        const files = await this.fileSystem.listFiles();
         const directories = new Set();
 
         // Collect top-level directories

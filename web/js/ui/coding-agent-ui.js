@@ -245,13 +245,13 @@ class CodingAgentUI {
                 break;
                 
             case 'project_loaded':
-                this.updateFileTree();
+                this.updateFileTree().catch(error => console.error('Failed to update file tree:', error));
                 this.setStatus(`Loaded ${data.result.fileCount} files`, 'ready');
                 break;
                 
             case 'file_system_event':
                 if (data.event === 'file_added' || data.event === 'file_updated' || data.event === 'file_deleted') {
-                    this.updateFileTree();
+                    this.updateFileTree().catch(error => console.error('Failed to update file tree:', error));
                 }
                 break;
                 
@@ -354,10 +354,10 @@ class CodingAgentUI {
     /**
      * Update file tree
      */
-    updateFileTree() {
+    async updateFileTree() {
         if (!this.elements.fileTreeContent || !this.agent.fileSystem) return;
 
-        const files = this.agent.fileSystem.listFiles();
+        const files = await this.agent.fileSystem.listFiles();
         this.elements.fileTreeContent.innerHTML = '';
 
         if (files.length === 0) {
