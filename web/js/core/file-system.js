@@ -149,10 +149,17 @@ class LightningFileSystem {
      * Add/Create file
      */
     async addFile(path, content, type = 'file') {
-        const normalizedPath = "/root/" + this.normalizePath(path);
+        const normalizedPath = "/" + this.normalizePath(path);
         try {
             if (type === 'directory') {
-                await this.fs.mkdir(normalizedPath, { recursive: true });
+                try {
+                    await this.fs.mkdir(normalizedPath, { recursive: true });
+                } catch (error) {
+                    // Ignore if directory already exists
+                    if (error.code !== 'EEXIST') {
+                        throw error;
+                    }
+                }
             } else {
                 // Ensure parent directory exists
                 const dir = this.dirname(normalizedPath);
@@ -160,7 +167,10 @@ class LightningFileSystem {
                     try {
                         await this.fs.mkdir(dir, { recursive: true });
                     } catch (error) {
-                        console.error(`Failed to create directory: ${dir}`, error);
+                        // Ignore if directory already exists
+                        if (error.code !== 'EEXIST') {
+                            console.error(`Failed to create directory: ${dir}`, error);
+                        }
                     }
                 }
                 // Write file
@@ -197,7 +207,7 @@ class LightningFileSystem {
      * Update file content
      */
     async updateFile(filePath, newContent) {
-        const normalizedPath = this.normalizePath(filePath);
+        const normalizedPath = "/" + this.normalizePath(filePath);
         
         try {
             // Read old content for comparison
@@ -243,7 +253,7 @@ class LightningFileSystem {
      * Get file
      */
     async getFile(filePath) {
-        const normalizedPath = this.normalizePath(filePath);
+        const normalizedPath = "/" + this.normalizePath(filePath);
         
         try {
             const stats = await this.fs.stat(normalizedPath);
@@ -267,7 +277,7 @@ class LightningFileSystem {
      * Delete file
      */
     async deleteFile(filePath) {
-        const normalizedPath = this.normalizePath(filePath);
+        const normalizedPath = "/" + this.normalizePath(filePath);
         
         try {
             // Get file info before deletion
@@ -301,7 +311,7 @@ class LightningFileSystem {
      * List files in directory
      */
     async listFiles(directoryPath = '') {
-        const normalizedDir = this.normalizePath(directoryPath);
+        const normalizedDir = "/" + this.normalizePath(directoryPath);
         
         try {
             const files = [];
