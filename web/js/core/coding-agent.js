@@ -476,15 +476,18 @@ class CodingAgent {
     /**
      * Get agent status
      */
-    getStatus() {
+    async getStatus() {
+        const fileCount = await this.fileSystem.getFileCount();
+        const totalSize = await this.fileSystem.getTotalSize();
+        
         return {
             initialized: this.isInitialized,
             processing: this.isProcessing,
             currentRequest: this.currentRequest,
             fileSystem: {
-                hasProject: this.fileSystem.getFileCount() > 0,
-                fileCount: this.fileSystem.getFileCount(),
-                totalSize: this.fileSystem.getTotalSize()
+                hasProject: fileCount > 0,
+                fileCount: fileCount,
+                totalSize: totalSize
             },
             changeTracker: this.changeTracker.getHistoryStats(),
             conversationLength: this.conversationHistory.length,
@@ -611,9 +614,9 @@ class CodingAgent {
     /**
      * Export project data
      */
-    exportProject() {
+    async exportProject() {
         return {
-            files: this.fileSystem.exportFiles(),
+            files: await this.fileSystem.exportFiles(),
             changes: this.changeTracker.exportChanges(),
             conversation: this.conversationHistory,
             exportedAt: new Date()

@@ -213,7 +213,7 @@ class ContextManager {
             if (relatedFiles.length >= 3) break; // Limit related files
             
             // Try to resolve the import to an actual file
-            const resolvedPath = this.resolveImportPath(importPath, relevantFiles[0]?.path);
+            const resolvedPath = await this.resolveImportPath(importPath, relevantFiles[0]?.path);
             if (resolvedPath) {
                 const file = await this.fileSystem.getFile(resolvedPath);
                 if (file) {
@@ -281,7 +281,7 @@ class ContextManager {
     /**
      * Resolve import path to actual file path
      */
-    resolveImportPath(importPath, fromFile) {
+    async resolveImportPath(importPath, fromFile) {
         // Handle relative imports
         if (importPath.startsWith('./') || importPath.startsWith('../')) {
             if (!fromFile) return null;
@@ -293,7 +293,8 @@ class ContextManager {
             const extensions = ['', '.js', '.ts', '.jsx', '.tsx', '/index.js', '/index.ts'];
             for (const ext of extensions) {
                 const testPath = resolved + ext;
-                if (this.fileSystem.files.has(testPath)) {
+                const file = await this.fileSystem.getFile(testPath);
+                if (file) {
                     return testPath;
                 }
             }
@@ -311,7 +312,8 @@ class ContextManager {
         ];
 
         for (const path of possiblePaths) {
-            if (this.fileSystem.files.has(path)) {
+            const file = await this.fileSystem.getFile(path);
+            if (file) {
                 return path;
             }
         }
@@ -345,8 +347,19 @@ class ContextManager {
 
         // Search for symbols mentioned in keywords
         for (const keyword of intent.keywords) {
-            const foundSymbols = this.fileSystem.index.searchSymbols(keyword);
-            symbols.push(...foundSymbols.slice(0, 5)); // Limit per keyword
+            try {
+                const searchResults = await this.fileSystem.searchFiles(keyword, { maxResults: 10 });
+                for (const result of searchResults) {
+                    symbols.push({
+                        name: keyword,
+                        type: 'function', // Default type
+                        filePath: result.filePath,
+                        line: result.matches[0]?.line || 1
+                    });
+                }
+            } catch (error) {
+                // Continue if search fails
+            }
         }
 
         return symbols.slice(0, 20); // Overall limit
@@ -387,9 +400,9 @@ class ContextManager {
      * Get project overview
      */
     async getProjectOverview() {
-        const repoInfo = this.fileSystem.getRepositoryInfo();
-        const fileCount = this.fileSystem.getFileCount();
-        const totalSize = this.fileSystem.getTotalSize();
+        const repoInfo = await this.fileSystem.getRepositoryInfo();
+        const fileCount = await this.fileSystem.getFileCount();
+        const totalSize = await this.fileSystem.getTotalSize();
 
         return {
             repository: repoInfo,

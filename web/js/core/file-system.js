@@ -187,6 +187,7 @@ class LightningFileSystem {
                 lastModified: stats.mtime
             };
 
+
             // Notify listeners
             this.notifyListeners('file_added', { 
                 path: normalizedPath, 
@@ -293,6 +294,7 @@ class LightningFileSystem {
                 await this.fs.unlink(normalizedPath);
             }
 
+
             // Notify listeners
             this.notifyListeners('file_deleted', { 
                 path: normalizedPath, 
@@ -398,6 +400,198 @@ class LightningFileSystem {
     async gitStatus() {
         return await git.statusMatrix({ fs: this.fs, dir: this.workdir });
     }
+
+    /**
+     * Get repository information
+     */
+    async getRepositoryInfo() {
+        if (!this.currentRepo) {
+            return {
+                name: 'Local Project',
+                url: null,
+                branch: 'main',
+                description: 'Local development project'
+            };
+        }
+        return this.currentRepo;
+    }
+
+    /**
+     * Get file count
+     */
+    async getFileCount() {
+        try {
+            const files = await this.listFiles();
+            return files.filter(f => f.type === 'file').length;
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    /**
+     * Get total size of all files
+     */
+    async getTotalSize() {
+        try {
+            const files = await this.listFiles();
+            return files
+                .filter(f => f.type === 'file')
+                .reduce((sum, f) => sum + (f.size || 0), 0);
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    /**
+     * Search files by content or name
+     */
+    async searchFiles(query, options = {}) {
+        const files = await this.listFiles();
+        const results = [];
+
+        for (const file of files) {
+            if (file.type === 'file') {
+                // Search by filename
+                if (file.path.toLowerCase().includes(query.toLowerCase())) {
+                    results.push({
+                        filePath: file.path,
+                        matches: [{ line: 0, content: `Filename match: ${file.path}` }]
+                    });
+                }
+
+                // Search by content
+                try {
+                    const content = await this.fs.readFile(file.path, 'utf8');
+                    const lines = content.split('\n');
+                    const matches = [];
+
+                    lines.forEach((line, index) => {
+                        if (line.toLowerCase().includes(query.toLowerCase())) {
+                            matches.push({
+                                line: index + 1,
+                                content: line.trim()
+                            });
+                        }
+                    });
+
+                    if (matches.length > 0) {
+                        results.push({
+                            filePath: file.path,
+                            matches: matches.slice(0, options.maxMatches || 10)
+                        });
+                    }
+                } catch (error) {
+                    // Skip files that can't be read
+                }
+            }
+        }
+
+        return results.slice(0, options.maxResults || 50);
+    }
+
+    /**
+     * Load project from GitHub
+     */
+    async loadFromGitHub(repoUrl, options = {}) {
+        try {
+            // Parse GitHub URL
+            const urlParts = repoUrl.replace('https://github.com/', '').split('/');
+            const owner = urlParts[0];
+            const repo = urlParts[1].replace('.git', '');
+            const branch = options.branch || 'main';
+
+            // Clear existing files
+            await this.clear();
+
+            // Clone repository
+            await git.clone({
+                fs: this.fs,
+                http,
+                dir: this.workdir,
+                url: repoUrl,
+                ref: branch,
+                singleBranch: true,
+                depth: 1
+            });
+
+            // Set current repository info
+            this.currentRepo = {
+                name: repo,
+                owner: owner,
+                url: repoUrl,
+                branch: branch,
+                description: `Repository: ${owner}/${repo}`
+            };
+
+            // Get file information for notification
+            const files = await this.listFiles();
+
+            if (window.CrushStorage) {
+                window.CrushStorage.addRepository(this.currentRepo);
+            }
+
+            this.notifyListeners('repository_loaded', {
+                repo: this.currentRepo,
+                fileCount: files.length
+            });
+
+            return {
+                success: true,
+                repo: this.currentRepo,
+                fileCount: files.length
+            };
+
+        } catch (error) {
+            console.error('Failed to clone repository', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Export files for saving
+     */
+    async exportFiles() {
+        try {
+            const files = await this.listFiles();
+            const exported = {};
+            
+            for (const file of files) {
+                if (file.type === 'file') {
+                    try {
+                        const content = await this.fs.readFile(file.path, 'utf8');
+                        exported[file.path] = {
+                            content: content,
+                            type: file.type,
+                            size: file.size,
+                            lastModified: file.lastModified
+                        };
+                    } catch (error) {
+                        console.warn(`Failed to export file ${file.path}:`, error);
+                    }
+                }
+            }
+            
+            return exported;
+        } catch (error) {
+            console.error('Failed to export files:', error);
+            return {};
+        }
+    }
+
+    /**
+     * Import files from saved state
+     */
+    async importFiles(files) {
+        try {
+            for (const [path, fileData] of Object.entries(files)) {
+                await this.addFile(path, fileData.content || fileData, fileData.type || 'file');
+            }
+        } catch (error) {
+            console.error('Failed to import files:', error);
+            throw error;
+        }
+    }
+
 }
 
 // Export to global scope
