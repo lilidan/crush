@@ -487,7 +487,7 @@ class ContextManager {
      * Build basic context prompt (fallback)
      */
     buildBasicPrompt(context, userPrompt) {
-        let prompt = `You are Crush, a web-based coding assistant. Help users with software engineering tasks using the available tools.
+        let prompt = `You are Claude code, a web-based coding assistant. Help users with software engineering tasks using the available tools.
 
 ## Project Context
 `;

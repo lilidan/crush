@@ -375,7 +375,7 @@ class ListFilesTool extends BaseTool {
         const { directory = '', show_hidden = false, file_types = [] } = args;
         
         try {
-            const files = this.fileSystem.listFiles(directory);
+            const files = await this.fileSystem.listFiles(directory);
             
             // Filter files
             let filteredFiles = files;
