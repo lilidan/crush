@@ -62,6 +62,7 @@ type Theme struct {
 
 	// Yellows
 	Yellow color.Color
+	Citron color.Color
 
 	// Greens
 	Green      color.Color
@@ -73,6 +74,21 @@ type Theme struct {
 	RedDark  color.Color
 	RedLight color.Color
 	Cherry   color.Color
+
+	// Text selection.
+	TextSelection lipgloss.Style
+
+	// LSP and MCP status indicators.
+	ItemOfflineIcon lipgloss.Style
+	ItemBusyIcon    lipgloss.Style
+	ItemErrorIcon   lipgloss.Style
+	ItemOnlineIcon  lipgloss.Style
+
+	// Editor: Yolo Mode
+	YoloIconFocused lipgloss.Style
+	YoloIconBlurred lipgloss.Style
+	YoloDotsFocused lipgloss.Style
+	YoloDotsBlurred lipgloss.Style
 
 	styles *Styles
 }
@@ -485,26 +501,26 @@ func SetDefaultManager(m *Manager) {
 
 func DefaultManager() *Manager {
 	if defaultManager == nil {
-		defaultManager = NewManager("crush")
+		defaultManager = NewManager()
 	}
 	return defaultManager
 }
 
 func CurrentTheme() *Theme {
 	if defaultManager == nil {
-		defaultManager = NewManager("crush")
+		defaultManager = NewManager()
 	}
 	return defaultManager.Current()
 }
 
-func NewManager(defaultTheme string) *Manager {
+func NewManager() *Manager {
 	m := &Manager{
 		themes: make(map[string]*Theme),
 	}
 
-	m.Register(NewCrushTheme())
-
-	m.current = m.themes[defaultTheme]
+	t := NewCharmtoneTheme() // default theme
+	m.Register(t)
+	m.current = m.themes[t.Name]
 
 	return m
 }
